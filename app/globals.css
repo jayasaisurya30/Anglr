@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark-only palette: Apple/Tesla-style deep near-black */
+    --background: 220 13% 4%;
+    --foreground: 210 20% 97%;
+
+    --card: 222 14% 6%;
+    --card-foreground: 210 20% 97%;
+
+    --popover: 222 14% 7%;
+    --popover-foreground: 210 20% 97%;
+
+    --primary: 211 100% 65%;
+    --primary-foreground: 220 30% 8%;
+
+    --secondary: 222 10% 12%;
+    --secondary-foreground: 210 15% 92%;
+
+    --muted: 222 10% 11%;
+    --muted-foreground: 215 10% 60%;
+
+    --accent: 211 85% 55%;
+    --accent-foreground: 210 20% 97%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 10% 14%;
+    --input: 220 10% 12%;
+    --ring: 211 100% 65%;
+
+    --radius: 1rem;
+
+    color-scheme: dark;
+  }
+
+  html,
+  body {
+    height: 100%;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  ::selection {
+    background: rgba(77, 163, 255, 0.35);
+    color: white;
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+@layer utilities {
+  .map-mc-cursor .mapboxgl-canvas-container,
+  .map-mc-cursor .mapboxgl-canvas {
+    /* Hotspot on handle (bottom-right after mirror) */
+    cursor: url("/cursors/minecraft-fishing-rod.svg") 28 30, grab !important;
+  }
+  .map-mc-cursor.map-mc-cursor--placing .mapboxgl-canvas-container,
+  .map-mc-cursor.map-mc-cursor--placing .mapboxgl-canvas {
+    cursor: crosshair !important;
+  }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.035);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-strong {
+    background: rgba(14, 16, 20, 0.72);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .gradient-text {
+    background: linear-gradient(180deg, #ffffff 0%, #b7c7de 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gradient-text-blue {
+    background: linear-gradient(180deg, #7fc4ff 0%, #4da3ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .ring-focus {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.07) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.2s linear infinite;
+  }
+
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .bg-water-grid {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(77, 163, 255, 0.14), transparent 40%),
+      radial-gradient(circle at 80% 0%, rgba(127, 196, 255, 0.08), transparent 45%),
+      linear-gradient(180deg, #08090b 0%, #05060a 100%);
+  }
+}
+
+/* Mapbox GL dark-theme polish */
+.mapboxgl-ctrl-attrib,
+.mapboxgl-ctrl-logo {
+  opacity: 0.4;
+  filter: invert(1) hue-rotate(180deg);
+}
+.mapboxgl-popup-content {
+  background: rgba(14, 16, 20, 0.9) !important;
+  color: #f5f6f8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px !important;
+  backdrop-filter: blur(20px);
+}
+.mapboxgl-popup-tip {
+  border-top-color: rgba(14, 16, 20, 0.9) !important;
+}
