@@ -6,6 +6,10 @@ import { publicImageUrl } from "@/lib/queries/catches";
 import { fmtDate } from "@/lib/utils/dates";
 import { Badge } from "@/components/ui/badge";
 import type { CatchWithImages } from "@/lib/supabase/types";
+import {
+  catchSpeciesBadgeLabel,
+  catchSpeciesTitle,
+} from "@/lib/utils/catch-display";
 
 export function CatchCard({
   catchRow,
@@ -31,7 +35,10 @@ export function CatchCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={publicImageUrl(cover.storage_path)}
-            alt={catchRow.species ?? "Catch"}
+            alt={catchSpeciesBadgeLabel(
+              catchRow.species,
+              catchRow.species_nickname
+            )}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
@@ -53,7 +60,7 @@ export function CatchCard({
       </div>
       <div className="absolute inset-x-0 bottom-0 p-4">
         <div className="text-base font-semibold truncate">
-          {catchRow.species ?? "Untitled catch"}
+          {catchSpeciesTitle(catchRow.species, catchRow.species_nickname)}
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
           {catchRow.weight_lbs != null ? (

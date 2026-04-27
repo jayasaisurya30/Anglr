@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { resolveProfileAvatarSrc } from "@/lib/utils/profile-avatar";
 import { type ReactNode } from "react";
 import type { ProfileLite } from "@/lib/queries/follows";
 
@@ -13,12 +14,13 @@ export function UserRow({
   const initials = (profile.display_name ?? profile.username ?? "A")
     .slice(0, 2)
     .toUpperCase();
+  const avatarSrc = resolveProfileAvatarSrc(profile.avatar_url);
 
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.025] p-4 hover:bg-white/[0.04] transition-colors">
       <Link href={`/profile/${profile.handle}`} className="shrink-0">
         <Avatar className="h-11 w-11">
-          {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt="" /> : null}
+          {avatarSrc ? <AvatarImage src={avatarSrc} alt="" /> : null}
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </Link>

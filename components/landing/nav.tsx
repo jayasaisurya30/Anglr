@@ -30,19 +30,6 @@ export function LandingNav() {
         <Link href="/" className="relative z-10">
           <Logo />
         </Link>
-        <nav
-          className={cn(
-            "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
-            "hidden md:flex items-center gap-8 text-sm text-muted-foreground"
-          )}
-        >
-          <Link href="/public/feed" className="hover:text-foreground transition">
-            Feed
-          </Link>
-          <Link href="/public/map" className="hover:text-foreground transition">
-            Map
-          </Link>
-        </nav>
       </div>
     </header>
   );

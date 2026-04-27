@@ -12,11 +12,17 @@ import { MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CatchWithAuthor } from "@/lib/supabase/types";
 import { profileInitials, profilePrimaryName } from "@/lib/utils/profile-display";
+import { resolveProfileAvatarSrc } from "@/lib/utils/profile-avatar";
+import {
+  catchSpeciesBadgeLabel,
+  catchSpeciesTitle,
+} from "@/lib/utils/catch-display";
 
 export function FeedItem({ catchRow }: { catchRow: CatchWithAuthor }) {
   const [openComments, setOpenComments] = useState(false);
   const author = catchRow.profiles;
   const initials = profileInitials(author ?? undefined);
+  const avatarSrc = resolveProfileAvatarSrc(author?.avatar_url);
   const imgs = [...(catchRow.catch_images ?? [])].sort(
     (a, b) => a.sort_order - b.sort_order
   );
@@ -29,9 +35,7 @@ export function FeedItem({ catchRow }: { catchRow: CatchWithAuthor }) {
           className="flex items-center gap-3"
         >
           <Avatar className="h-9 w-9">
-            {author?.avatar_url ? (
-              <AvatarImage src={author.avatar_url} alt="" />
-            ) : null}
+            {avatarSrc ? <AvatarImage src={avatarSrc} alt="" /> : null}
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div>
@@ -43,7 +47,12 @@ export function FeedItem({ catchRow }: { catchRow: CatchWithAuthor }) {
             </div>
           </div>
         </Link>
-        <Badge variant="primary">{catchRow.species ?? "catch"}</Badge>
+        <Badge variant="primary">
+          {catchSpeciesBadgeLabel(
+            catchRow.species,
+            catchRow.species_nickname
+          )}
+        </Badge>
       </header>
 
       {imgs.length > 0 ? (
@@ -70,7 +79,9 @@ export function FeedItem({ catchRow }: { catchRow: CatchWithAuthor }) {
 
       <div className="px-5 py-4 space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <strong>{catchRow.species ?? "Catch"}</strong>
+          <strong>
+            {catchSpeciesTitle(catchRow.species, catchRow.species_nickname)}
+          </strong>
           {catchRow.weight_lbs != null ? (
             <span className="text-muted-foreground">
               · {catchRow.weight_lbs} lbs

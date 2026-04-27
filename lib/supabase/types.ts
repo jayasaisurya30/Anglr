@@ -64,6 +64,7 @@ export interface Database {
           id: string;
           user_id: string;
           species: string | null;
+          species_nickname: string | null;
           weight_lbs: number | null;
           caught_at: string;
           lat: number;
@@ -78,6 +79,7 @@ export interface Database {
           id?: string;
           user_id: string;
           species?: string | null;
+          species_nickname?: string | null;
           weight_lbs?: number | null;
           caught_at?: string;
           lat: number;

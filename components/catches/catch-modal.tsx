@@ -19,6 +19,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import type { CatchWithAuthor, CatchWithImages, Profile } from "@/lib/supabase/types";
 import { useAuthProfile } from "@/components/common/auth-profile-provider";
 import { profilePrimaryName } from "@/lib/utils/profile-display";
+import { catchSpeciesTitle } from "@/lib/utils/catch-display";
 
 export interface CatchModalProps {
   open: boolean;
@@ -104,7 +105,7 @@ export function CatchModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {catchRow.species ?? "Untitled catch"}
+            {catchSpeciesTitle(catchRow.species, catchRow.species_nickname)}
             {catchRow.weight_lbs != null ? (
               <span className="ml-2 text-muted-foreground font-normal">
                 · {catchRow.weight_lbs} lbs
@@ -131,6 +132,7 @@ export function CatchModal({
           <CatchForm
             defaultValues={{
               species: catchRow.species ?? "",
+              species_nickname: catchRow.species_nickname ?? "",
               weight_lbs: catchRow.weight_lbs,
               caught_at: toDatetimeLocal(catchRow.caught_at),
               lat: catchRow.lat,
@@ -163,6 +165,10 @@ export function CatchModal({
             ) : null}
             <div className="grid grid-cols-2 gap-3 text-sm">
               <Field label="Species" value={catchRow.species ?? "—"} />
+              <Field
+                label="Custom name"
+                value={catchRow.species_nickname?.trim() || "—"}
+              />
               <Field
                 label="Weight"
                 value={

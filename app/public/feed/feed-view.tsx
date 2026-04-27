@@ -11,6 +11,8 @@ export function FeedView() {
   const { data, isLoading } = useQuery({
     queryKey: ["public-feed"],
     queryFn: () => listPublicCatches(60),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 
   if (isLoading) {

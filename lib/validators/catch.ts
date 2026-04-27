@@ -3,7 +3,13 @@ import { z } from "zod";
 export const catchVisibility = z.enum(["private", "friends", "public"]);
 
 export const catchFormSchema = z.object({
-  species: z.string().trim().max(80).optional().or(z.literal("")),
+  species: z.string().trim().min(1, "Select a species").max(80),
+  species_nickname: z
+    .string()
+    .trim()
+    .max(80, "Too long")
+    .optional()
+    .or(z.literal("")),
   weight_lbs: z
     .number({ invalid_type_error: "Enter a number" })
     .min(0)

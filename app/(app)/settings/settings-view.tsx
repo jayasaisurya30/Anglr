@@ -12,6 +12,7 @@ import { useUser } from "@/hooks/use-user";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { toSupabaseError } from "@/lib/supabase/to-error";
 import { bootstrapProfile } from "@/lib/queries/bootstrap-profile";
+import { ProfilePhotoField } from "@/components/settings/profile-photo-field";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import type { Settings } from "@/lib/supabase/types";
@@ -208,6 +209,12 @@ export function SettingsView() {
         <>
           <Section title="Profile">
             <div className="grid gap-3">
+              <ProfilePhotoField
+                userId={user.id}
+                profile={user.profile}
+                onUpdated={() => void refreshUser()}
+              />
+              <Separator className="my-1" />
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Username</Label>

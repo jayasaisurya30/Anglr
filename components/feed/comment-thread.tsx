@@ -10,6 +10,7 @@ import { fmtRelative } from "@/lib/utils/dates";
 import { toast } from "sonner";
 import Link from "next/link";
 import { profileInitials, profilePrimaryName } from "@/lib/utils/profile-display";
+import { resolveProfileAvatarSrc } from "@/lib/utils/profile-avatar";
 
 export function CommentThread({ catchId }: { catchId: string }) {
   const [body, setBody] = useState("");
@@ -37,22 +38,19 @@ export function CommentThread({ catchId }: { catchId: string }) {
           const handle = c.author?.handle;
           const name = profilePrimaryName(c.author ?? undefined);
           const initials = profileInitials(c.author ?? undefined);
+          const avatarSrc = resolveProfileAvatarSrc(c.author?.avatar_url);
           return (
             <li key={c.id} className="flex gap-2.5">
               {handle ? (
                 <Link href={`/profile/${handle}`} className="shrink-0">
                   <Avatar className="h-7 w-7">
-                    {c.author?.avatar_url ? (
-                      <AvatarImage src={c.author.avatar_url} alt="" />
-                    ) : null}
+                    {avatarSrc ? <AvatarImage src={avatarSrc} alt="" /> : null}
                     <AvatarFallback>{initials}</AvatarFallback>
                   </Avatar>
                 </Link>
               ) : (
                 <Avatar className="h-7 w-7 shrink-0">
-                  {c.author?.avatar_url ? (
-                    <AvatarImage src={c.author.avatar_url} alt="" />
-                  ) : null}
+                  {avatarSrc ? <AvatarImage src={avatarSrc} alt="" /> : null}
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
               )}

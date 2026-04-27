@@ -9,6 +9,8 @@ import {
   Users,
   User,
   Settings,
+  Newspaper,
+  Globe2,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Logo } from "@/components/common/logo";
@@ -19,6 +21,8 @@ const NAV = [
   { href: "/catches", label: "My Catches", icon: Fish },
   { href: "/stats", label: "Stats", icon: BarChart3 },
   { href: "/friends", label: "Friends", icon: Users },
+  { href: "/public/feed", label: "Feed", icon: Newspaper },
+  { href: "/public/map", label: "Global map", icon: Globe2 },
   { href: "/profile", label: "Profile", icon: User },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

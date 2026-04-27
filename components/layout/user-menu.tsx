@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { resolveProfileAvatarSrc } from "@/lib/utils/profile-avatar";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
 
 export function UserMenu() {
@@ -29,15 +30,14 @@ export function UserMenu() {
   }
 
   const display = profilePrimaryName(user.profile ?? undefined);
+  const menuAvatarSrc = resolveProfileAvatarSrc(user.profile?.avatar_url);
   const initials = display.slice(0, 2).toUpperCase();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-white/[0.05] transition">
         <Avatar className="h-8 w-8">
-          {user.profile?.avatar_url ? (
-            <AvatarImage src={user.profile.avatar_url} alt="" />
-          ) : null}
+          {menuAvatarSrc ? <AvatarImage src={menuAvatarSrc} alt="" /> : null}
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
         <div className="hidden sm:flex flex-col items-start leading-tight">

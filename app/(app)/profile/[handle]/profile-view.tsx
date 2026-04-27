@@ -9,6 +9,7 @@ import { getFollowCounts } from "@/lib/queries/follows";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { toSupabaseError } from "@/lib/supabase/to-error";
 import type { CatchWithImages, Profile } from "@/lib/supabase/types";
+import { resolveProfileAvatarSrc } from "@/lib/utils/profile-avatar";
 import { CatchCard } from "@/components/catches/catch-card";
 import { CatchModal } from "@/components/catches/catch-modal";
 import { EmptyState } from "@/components/common/empty-state";
@@ -60,6 +61,7 @@ export function ProfileView({
   const initials = (profile.display_name ?? profile.username ?? "A")
     .slice(0, 2)
     .toUpperCase();
+  const avatarSrc = resolveProfileAvatarSrc(profile.avatar_url);
 
   const loadError =
     counts.isError || catches.isError ? (
@@ -80,9 +82,7 @@ export function ProfileView({
         <div className="pointer-events-none absolute inset-x-0 -top-40 h-80 bg-[radial-gradient(ellipse_at_top,rgba(77,163,255,0.2),transparent_60%)]" />
         <div className="relative flex flex-col md:flex-row md:items-center gap-6">
           <Avatar className="h-24 w-24 ring-4 ring-white/10">
-            {profile.avatar_url ? (
-              <AvatarImage src={profile.avatar_url} alt="" />
-            ) : null}
+            {avatarSrc ? <AvatarImage src={avatarSrc} alt="" /> : null}
             <AvatarFallback className="text-xl">{initials}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">

@@ -9,10 +9,7 @@ export default function Loading() {
         <Skeleton className="h-28 rounded-3xl" />
         <Skeleton className="h-28 rounded-3xl" />
       </div>
-      <div className="grid md:grid-cols-2 gap-4">
-        <Skeleton className="h-80 rounded-3xl" />
-        <Skeleton className="h-80 rounded-3xl" />
-      </div>
+      <Skeleton className="h-[22rem] md:h-[26rem] rounded-3xl" />
       <Skeleton className="h-[440px] rounded-3xl" />
     </div>
   );

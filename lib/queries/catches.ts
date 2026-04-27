@@ -24,10 +24,14 @@ export async function listMyCatches(): Promise<CatchWithImages[]> {
   return (data as unknown as CatchWithImages[]) ?? [];
 }
 
+/** Public catches only include rows created within this window (feed + public map). */
+const PUBLIC_FEED_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 export async function listPublicCatches(
   limit = 50
 ): Promise<CatchWithAuthor[]> {
   const supabase = createSupabaseBrowserClient();
+  const since = new Date(Date.now() - PUBLIC_FEED_MAX_AGE_MS).toISOString();
   const { data, error } = await supabase
     .from("catches")
     .select(
@@ -35,6 +39,7 @@ export async function listPublicCatches(
        profiles:profiles!user_id(username, handle, avatar_url, display_name)`
     )
     .eq("visibility", "public")
+    .gte("created_at", since)
     .order("caught_at", { ascending: false })
     .limit(limit);
   if (error) throw toSupabaseError(error, "Failed to load catches");
@@ -51,6 +56,7 @@ export async function createCatch(input: CatchFormInput, files: File[] = []) {
     .insert({
       user_id: auth.user.id,
       species: input.species || null,
+      species_nickname: input.species_nickname?.trim() || null,
       weight_lbs: input.weight_lbs ?? null,
       caught_at: input.caught_at,
       lat: input.lat,
@@ -105,6 +111,10 @@ export async function updateCatch(
     .from("catches")
     .update({
       species: patch.species ?? undefined,
+      species_nickname:
+        patch.species_nickname !== undefined
+          ? patch.species_nickname?.trim() || null
+          : undefined,
       weight_lbs: patch.weight_lbs ?? undefined,
       caught_at: patch.caught_at ?? undefined,
       lat: patch.lat ?? undefined,

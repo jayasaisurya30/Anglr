@@ -48,7 +48,7 @@ export function CatchFilters({
       <div className="relative md:w-80">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search species, notes, bait..."
+          placeholder="Search species, names, notes, bait..."
           value={value.q}
           onChange={(e) => set("q", e.target.value)}
           className="pl-9"
@@ -117,24 +117,27 @@ export function CatchFilters({
   );
 }
 
-export function applyFilters(
-  catches: Array<{
-    species: string | null;
-    caught_at: string;
-    weight_lbs: number | null;
-    visibility: "private" | "friends" | "public";
-    notes: string | null;
-    bait: string | null;
-  }>,
+type CatchFilterable = {
+  species: string | null;
+  species_nickname?: string | null;
+  caught_at: string;
+  weight_lbs: number | null;
+  visibility: "private" | "friends" | "public";
+  notes: string | null;
+  bait: string | null;
+};
+
+export function applyFilters<T extends CatchFilterable>(
+  catches: T[],
   f: FilterState
-) {
+): T[] {
   const q = f.q.trim().toLowerCase();
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
 
   return catches.filter((c) => {
     if (q) {
-      const bag = [c.species, c.notes, c.bait]
+      const bag = [c.species, c.species_nickname, c.notes, c.bait]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
@@ -159,5 +162,5 @@ export function applyFilters(
       if (f.weight === "gt5" && w <= 5) return false;
     }
     return true;
-  });
+  }) as T[];
 }

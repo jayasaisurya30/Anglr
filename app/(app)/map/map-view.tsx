@@ -4,17 +4,19 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MapCanvas } from "@/components/map/map-canvas";
 import { Button } from "@/components/ui/button";
-import { MapPin, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { AddCatchSheet } from "@/components/map/add-catch-sheet";
 import { listMyCatches } from "@/lib/queries/catches";
 import { CatchModal } from "@/components/catches/catch-modal";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import type { CatchWithImages } from "@/lib/supabase/types";
 import type { CatchPoint } from "@/lib/mapbox/cluster";
 
 type Mode = "idle" | "placing";
+
+const placeOnMapCtaMotion =
+  "outline-none ring-offset-2 ring-offset-[#020611] transition-[transform,box-shadow,border-color,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:hover:scale-[1.04] motion-safe:hover:-translate-y-px motion-safe:active:scale-[0.985] motion-safe:active:translate-y-0 focus-visible:ring-2 focus-visible:ring-anglr-blue/70";
 
 export function MapView() {
   const [mode, setMode] = useState<Mode>("idle");
@@ -23,11 +25,13 @@ export function MapView() {
   >(null);
   const [selected, setSelected] = useState<CatchWithImages | null>(null);
 
-  const { coords: geo, error: geoError } = useGeolocation({ enabled: true });
+  const { coords: geo } = useGeolocation({ enabled: true });
 
   const { data: catches } = useQuery({
     queryKey: ["my-catches"],
     queryFn: listMyCatches,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
 
   const points = useMemo<CatchPoint[]>(
@@ -42,19 +46,6 @@ export function MapView() {
       })),
     [catches]
   );
-
-  function handleAddHere() {
-    if (!geo) {
-      toast.error(
-        geoError
-          ? "Location unavailable. You can click the map to place a pin."
-          : "Waiting for your location..."
-      );
-      setMode("placing");
-      return;
-    }
-    setPendingCoords({ lng: geo.lng, lat: geo.lat });
-  }
 
   function handlePlacement(lng: number, lat: number) {
     setPendingCoords({ lng, lat });
@@ -101,24 +92,27 @@ export function MapView() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
-              className="pointer-events-auto flex items-center gap-2 glass-strong rounded-full p-1.5 shadow-panel"
+              className="pointer-events-auto"
             >
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleAddHere}
-                className="rounded-full"
-              >
-                <MapPin /> Add catch here
-              </Button>
-              <Button
-                variant="secondary"
-                size="lg"
+              <button
+                type="button"
                 onClick={() => setMode("placing")}
-                className="rounded-full"
+                className={`cta-hero-login group relative inline-flex h-[3.25rem] items-center justify-center gap-2.5 overflow-hidden rounded-full px-8 text-[0.9375rem] font-semibold tracking-[0.04em] text-[#e8f2fc] ${placeOnMapCtaMotion}`}
               >
-                <Plus /> Place on map
-              </Button>
+                <span className="cta-hero-login__bloom" aria-hidden />
+                <span className="cta-hero-login__base" aria-hidden />
+                <span className="cta-hero-login__glass" aria-hidden />
+                <span className="cta-hero-login__shine-edge" aria-hidden />
+                <span className="cta-hero-login__shimmer" aria-hidden />
+                <span className="relative z-10 inline-flex items-center gap-2.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">
+                  <Plus
+                    className="size-[1.05rem] shrink-0 opacity-90 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:translate-x-0.5"
+                    strokeWidth={2.35}
+                    aria-hidden
+                  />
+                  Place on map
+                </span>
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

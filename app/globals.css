@@ -76,14 +76,159 @@
 }
 
 @layer utilities {
-  .map-mc-cursor .mapboxgl-canvas-container,
-  .map-mc-cursor .mapboxgl-canvas {
-    /* Hotspot on handle (bottom-right after mirror) */
-    cursor: url("/cursors/minecraft-fishing-rod.svg") 28 30, grab !important;
-  }
-  .map-mc-cursor.map-mc-cursor--placing .mapboxgl-canvas-container,
-  .map-mc-cursor.map-mc-cursor--placing .mapboxgl-canvas {
+  /* Crosshair only while placing a catch; otherwise browser default cursor */
+  .map-canvas--placing .mapboxgl-canvas-container,
+  .map-canvas--placing .mapboxgl-canvas {
     cursor: crosshair !important;
+  }
+}
+
+/* App-wide custom cursor (see components/common/anglr-cursor.tsx) */
+/* Force-hide the system cursor everywhere: Tailwind `cursor-pointer` on links,
+   buttons, labels, etc. overrides `body { cursor: none }` unless we use !important. */
+html[data-anglr-cursor],
+html[data-anglr-cursor] *,
+html[data-anglr-cursor] *::before,
+html[data-anglr-cursor] *::after {
+  cursor: none !important;
+}
+
+html[data-anglr-cursor] input:not([type="checkbox"]):not([type="radio"]):not(
+    [type="range"]
+  ):not([type="file"]),
+html[data-anglr-cursor] textarea,
+html[data-anglr-cursor] [contenteditable="true"] {
+  cursor: text !important;
+}
+
+html[data-anglr-cursor] input[type="range"] {
+  cursor: ew-resize !important;
+}
+
+html[data-anglr-cursor] input[type="file"] {
+  cursor: pointer !important;
+}
+
+html[data-anglr-cursor] input[type="checkbox"],
+html[data-anglr-cursor] input[type="radio"] {
+  cursor: pointer !important;
+}
+
+html[data-anglr-cursor] select {
+  cursor: pointer !important;
+}
+
+html[data-anglr-cursor] .map-canvas--placing .mapboxgl-canvas-container,
+html[data-anglr-cursor] .map-canvas--placing .mapboxgl-canvas {
+  cursor: crosshair !important;
+}
+
+/* Outer ring — crisp (no backdrop blur) so content behind stays readable */
+.landing-cursor-ring {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 1px solid rgba(127, 196, 255, 0.5);
+  background: rgba(77, 163, 255, 0.04);
+  box-shadow:
+    0 0 16px rgba(127, 196, 255, 0.28),
+    0 0 36px rgba(77, 163, 255, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: scale(1);
+  transition:
+    width 0.38s cubic-bezier(0.2, 0.85, 0.2, 1),
+    height 0.38s cubic-bezier(0.2, 0.85, 0.2, 1),
+    border-color 0.38s ease,
+    background 0.38s ease,
+    box-shadow 0.38s ease,
+    transform 0.38s cubic-bezier(0.2, 0.85, 0.2, 1);
+  will-change: transform, width, height, box-shadow;
+}
+
+.landing-cursor-ring--hover {
+  width: 58px;
+  height: 58px;
+  border-color: rgba(199, 230, 255, 0.72);
+  background: rgba(77, 163, 255, 0.07);
+  box-shadow:
+    0 0 22px rgba(127, 196, 255, 0.42),
+    0 0 52px rgba(77, 163, 255, 0.22),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transform: scale(1.04);
+}
+
+/* Inner dot */
+.landing-cursor-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #4da3ff;
+  box-shadow:
+    0 0 10px rgba(127, 196, 255, 0.95),
+    0 0 22px rgba(77, 163, 255, 0.55);
+  transform: scale(1);
+  transition:
+    transform 0.38s cubic-bezier(0.2, 0.85, 0.2, 1),
+    background 0.38s ease,
+    box-shadow 0.38s ease;
+  will-change: transform, box-shadow;
+}
+
+.landing-cursor-dot--hover {
+  transform: scale(1.22);
+  background: #7fc4ff;
+  box-shadow:
+    0 0 14px rgba(199, 230, 255, 0.98),
+    0 0 32px rgba(77, 163, 255, 0.65);
+}
+
+@keyframes landing-cursor-dot-pulse {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.78);
+  }
+  65% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes landing-cursor-ring-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.86);
+  }
+  68% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.landing-cursor-dot--pulse {
+  animation: landing-cursor-dot-pulse 0.4s cubic-bezier(0.2, 0.85, 0.2, 1) both;
+}
+
+.landing-cursor-ring--pulse {
+  animation: landing-cursor-ring-pulse 0.46s cubic-bezier(0.2, 0.85, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-cursor-ring,
+  .landing-cursor-dot {
+    transition-duration: 0.01ms !important;
+  }
+
+  .landing-cursor-dot--pulse,
+  .landing-cursor-ring--pulse {
+    animation: none !important;
   }
 }
 
@@ -135,6 +280,95 @@
     mask-image: linear-gradient(to bottom, black 70%, transparent);
     -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent);
   }
+
+  /**
+   * Sonner — ANGLR toast styling (glass card, theme tokens, safe-area offset via layout).
+   */
+  [data-sonner-toaster][data-theme="dark"] {
+    --width: min(22rem, calc(100vw - 2rem));
+    --border-radius: 1rem;
+    --normal-bg: hsl(222 14% 9% / 0.94);
+    --normal-bg-hover: hsl(222 14% 14%);
+    --normal-border: hsl(220 10% 20% / 0.92);
+    --normal-border-hover: hsl(211 50% 38% / 0.45);
+    --normal-text: hsl(210 20% 97%);
+
+    --success-bg: hsl(158 32% 9% / 0.95);
+    --success-border: hsl(158 38% 22% / 0.88);
+    --success-text: hsl(152 62% 58%);
+
+    --info-bg: hsl(211 38% 10% / 0.95);
+    --info-border: hsl(211 52% 32% / 0.68);
+    --info-text: hsl(211 100% 72%);
+
+    --warning-bg: hsl(45 36% 9% / 0.95);
+    --warning-border: hsl(42 50% 28% / 0.58);
+    --warning-text: hsl(48 90% 62%);
+
+    --error-bg: hsl(0 40% 11% / 0.95);
+    --error-border: hsl(0 50% 30% / 0.78);
+    --error-text: hsl(0 82% 72%);
+  }
+
+  [data-sonner-toaster] [data-sonner-toast].toast-anglr {
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    padding: 0.875rem 1rem;
+    gap: 0.75rem;
+    backdrop-filter: blur(1.25rem) saturate(165%);
+    -webkit-backdrop-filter: blur(1.25rem) saturate(165%);
+    box-shadow:
+      0 0.35rem 1.75rem rgba(0, 0, 0, 0.52),
+      0 0 0 1px rgba(255, 255, 255, 0.055) inset,
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      inset 3px 0 0 0 hsl(211 100% 60% / 0.22);
+  }
+
+  [data-sonner-toaster] [data-sonner-toast].toast-anglr [data-icon] {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  [data-sonner-toast].toast-anglr[data-type="success"] {
+    box-shadow:
+      0 0.35rem 1.75rem rgba(0, 0, 0, 0.52),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+      inset 3px 0 0 0 hsl(152 55% 42% / 0.45);
+  }
+
+  [data-sonner-toast].toast-anglr[data-type="error"] {
+    box-shadow:
+      0 0.35rem 1.75rem rgba(0, 0, 0, 0.52),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+      inset 3px 0 0 0 hsl(0 72% 50% / 0.4);
+  }
+
+  [data-sonner-toast].toast-anglr[data-type="info"] {
+    box-shadow:
+      0 0.35rem 1.75rem rgba(0, 0, 0, 0.52),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+      inset 3px 0 0 0 hsl(211 100% 58% / 0.38);
+  }
+
+  [data-sonner-toast].toast-anglr[data-type="warning"] {
+    box-shadow:
+      0 0.35rem 1.75rem rgba(0, 0, 0, 0.52),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+      inset 3px 0 0 0 hsl(48 90% 48% / 0.35);
+  }
+
+  .toast-anglr__title {
+    @apply font-semibold tracking-tight text-[0.9375rem] leading-snug;
+  }
+
+  .toast-anglr__description {
+    @apply text-[0.8125rem] leading-relaxed opacity-90;
+  }
+
+  /* Pill close control; leave backgrounds to Sonner (including rich-colors). */
+  [data-sonner-toast].toast-anglr [data-close-button] {
+    border-radius: 999px;
+    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  }
 }
 
 @layer utilities {
@@ -155,6 +389,79 @@
   opacity: 0.4;
   filter: invert(1) hue-rotate(180deg);
 }
+
+/* Zoom +/- — glass stack, no default white control strip */
+.mapboxgl-ctrl-bottom-right > .mapboxgl-ctrl-group {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: 0 10px 10px 0 !important;
+  gap: 0;
+  overflow: visible;
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-group button {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: hsl(222 14% 9% / 0.88) !important;
+  backdrop-filter: blur(18px) saturate(165%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.875rem !important;
+  box-shadow:
+    0 0.35rem 1.25rem rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  margin-bottom: 0.45rem !important;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease;
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-group button:last-child {
+  margin-bottom: 0 !important;
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-group button.mapboxgl-ctrl-zoom-out {
+  border-top: none !important;
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-group button:hover {
+  background: hsl(222 14% 12% / 0.92) !important;
+  border-color: rgba(77, 163, 255, 0.35) !important;
+  box-shadow:
+    0 0.4rem 1.5rem rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(77, 163, 255, 0.12) inset,
+    0 0 20px -6px rgba(77, 163, 255, 0.25);
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-group button:active {
+  transform: scale(0.96);
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-group button:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px hsl(220 13% 4%),
+    0 0 0 4px rgba(77, 163, 255, 0.55),
+    0 0.35rem 1.25rem rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Default Mapbox icons are dark; invert for light glyphs on dark glass */
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-icon {
+  filter: brightness(0) invert(1) opacity(0.88);
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-group button:hover .mapboxgl-ctrl-icon {
+  filter: brightness(0) invert(1) opacity(1);
+}
+
 .mapboxgl-popup-content {
   background: rgba(14, 16, 20, 0.9) !important;
   color: #f5f6f8 !important;
@@ -164,4 +471,451 @@
 }
 .mapboxgl-popup-tip {
   border-top-color: rgba(14, 16, 20, 0.9) !important;
+}
+
+/* ----------------------------------------------------------------------------
+   Hero headline — soft cyan bloom around gradient type
+   (drop-shadow respects bg-clip-text glyphs better than text-shadow alone)
+   ---------------------------------------------------------------------------- */
+
+.hero-headline-glow {
+  filter: drop-shadow(0 0 14px rgba(127, 196, 255, 0.38))
+    drop-shadow(0 0 42px rgba(77, 163, 255, 0.22))
+    drop-shadow(0 0 88px rgba(77, 163, 255, 0.1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-headline-glow {
+    filter: drop-shadow(0 0 12px rgba(127, 196, 255, 0.28));
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Landing hero premium CTAs (Enter ANGLR, Sign Up, Log In)
+   ---------------------------------------------------------------------------- */
+
+@keyframes cta-hero-shimmer-wipe {
+  0% {
+    left: -65%;
+  }
+  100% {
+    left: 135%;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Premium “Enter ANGLR” CTA (logged-in — same glass treatment as Log In)
+   ---------------------------------------------------------------------------- */
+
+.cta-enter-anglr {
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(100, 170, 230, 0.1) inset,
+    0 12px 40px -14px rgba(0, 0, 0, 0.58),
+    0 6px 20px -8px rgba(0, 0, 0, 0.38);
+}
+
+.cta-enter-anglr:hover {
+  border-color: rgba(200, 228, 255, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(160, 210, 255, 0.18) inset,
+    0 0 48px -10px rgba(100, 180, 255, 0.28),
+    0 18px 50px -14px rgba(0, 0, 0, 0.52),
+    0 8px 26px -10px rgba(0, 0, 0, 0.42);
+}
+
+.cta-enter-anglr__bloom {
+  position: absolute;
+  inset: -36%;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    closest-side,
+    rgba(100, 175, 255, 0.28),
+    rgba(60, 120, 200, 0.08) 50%,
+    transparent 70%
+  );
+  filter: blur(24px);
+  opacity: 0.38;
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.cta-enter-anglr:hover .cta-enter-anglr__bloom {
+  opacity: 0.72;
+  transform: scale(1.05);
+}
+
+.cta-enter-anglr__base {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(
+    158deg,
+    rgba(14, 24, 42, 0.72) 0%,
+    rgba(8, 14, 26, 0.82) 45%,
+    rgba(10, 22, 40, 0.88) 100%
+  );
+  transition:
+    background 0.55s ease,
+    filter 0.5s ease;
+  pointer-events: none;
+}
+
+.cta-enter-anglr:hover .cta-enter-anglr__base {
+  filter: brightness(1.12);
+}
+
+.cta-enter-anglr__glass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(
+    198deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 32%,
+    transparent 50%,
+    rgba(40, 100, 180, 0.12) 100%
+  );
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  pointer-events: none;
+}
+
+.cta-enter-anglr__shine-edge {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.28) inset,
+    0 -1px 0 0 rgba(0, 0, 0, 0.2) inset;
+  pointer-events: none;
+}
+
+.cta-enter-anglr__shimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.38;
+  transition: opacity 0.45s ease;
+}
+
+.cta-enter-anglr:hover .cta-enter-anglr__shimmer {
+  opacity: 0.62;
+}
+
+.cta-enter-anglr__shimmer::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -65%;
+  width: 48%;
+  height: 220%;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(200, 230, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.06) 60%,
+    transparent 100%
+  );
+  transform: rotate(20deg);
+  animation: cta-hero-shimmer-wipe 3.1s ease-in-out infinite;
+}
+
+/* ----------------------------------------------------------------------------
+   Premium “Sign Up” CTA (guest — darker ocean blue, solid fill)
+   ---------------------------------------------------------------------------- */
+
+.cta-hero-signup {
+  isolation: isolate;
+  border: 1px solid rgba(130, 175, 215, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(40, 85, 130, 0.35) inset,
+    0 14px 44px -12px rgba(4, 18, 38, 0.72),
+    0 6px 22px -8px rgba(0, 0, 0, 0.52);
+}
+
+.cta-hero-signup:hover {
+  border-color: rgba(190, 220, 245, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(70, 120, 170, 0.32) inset,
+    0 0 52px -8px rgba(80, 140, 190, 0.28),
+    0 22px 56px -14px rgba(2, 12, 28, 0.65),
+    0 10px 30px -10px rgba(0, 0, 0, 0.52);
+}
+
+.cta-hero-signup__bloom {
+  position: absolute;
+  inset: -38%;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    closest-side,
+    rgba(70, 130, 195, 0.4),
+    rgba(35, 75, 125, 0.12) 48%,
+    transparent 74%
+  );
+  filter: blur(26px);
+  opacity: 0.44;
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.cta-hero-signup:hover .cta-hero-signup__bloom {
+  opacity: 0.78;
+  transform: scale(1.06);
+}
+
+.cta-hero-signup__base {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(
+    148deg,
+    #02060e 0%,
+    #040d18 14%,
+    #071526 32%,
+    #0a1f38 48%,
+    #0d2a48 62%,
+    #103556 78%,
+    #154265 100%
+  );
+  background-size: 130% 130%;
+  background-position: 30% 50%;
+  transition:
+    background-position 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.5s ease;
+  pointer-events: none;
+}
+
+.cta-hero-signup:hover .cta-hero-signup__base {
+  background-position: 54% 44%;
+  filter: brightness(1.06) saturate(1.05);
+}
+
+.cta-hero-signup__glass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(
+    185deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.05) 38%,
+    transparent 48%,
+    rgba(0, 12, 28, 0.35) 100%
+  );
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  pointer-events: none;
+}
+
+.cta-hero-signup__shine-edge {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
+    0 -1px 0 0 rgba(0, 0, 0, 0.14) inset;
+  pointer-events: none;
+}
+
+.cta-hero-signup__shimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.52;
+  transition: opacity 0.45s ease;
+}
+
+.cta-hero-signup:hover .cta-hero-signup__shimmer {
+  opacity: 0.85;
+}
+
+.cta-hero-signup__shimmer::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -65%;
+  width: 50%;
+  height: 220%;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.07) 38%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.1) 62%,
+    transparent 100%
+  );
+  transform: rotate(20deg);
+  animation: cta-hero-shimmer-wipe 2.75s ease-in-out infinite;
+}
+
+/* ----------------------------------------------------------------------------
+   Premium “Log In” CTA (guest — dark glass, cool rim glow)
+   ---------------------------------------------------------------------------- */
+
+.cta-hero-login {
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(100, 170, 230, 0.1) inset,
+    0 12px 40px -14px rgba(0, 0, 0, 0.58),
+    0 6px 20px -8px rgba(0, 0, 0, 0.38);
+}
+
+.cta-hero-login:hover {
+  border-color: rgba(200, 228, 255, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(160, 210, 255, 0.18) inset,
+    0 0 48px -10px rgba(100, 180, 255, 0.28),
+    0 18px 50px -14px rgba(0, 0, 0, 0.52),
+    0 8px 26px -10px rgba(0, 0, 0, 0.42);
+}
+
+.cta-hero-login__bloom {
+  position: absolute;
+  inset: -36%;
+  z-index: 0;
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    rgba(100, 175, 255, 0.28),
+    rgba(60, 120, 200, 0.08) 50%,
+    transparent 70%
+  );
+  filter: blur(24px);
+  opacity: 0.38;
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.cta-hero-login:hover .cta-hero-login__bloom {
+  opacity: 0.72;
+  transform: scale(1.05);
+}
+
+.cta-hero-login__base {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(
+    158deg,
+    rgba(14, 24, 42, 0.72) 0%,
+    rgba(8, 14, 26, 0.82) 45%,
+    rgba(10, 22, 40, 0.88) 100%
+  );
+  transition:
+    background 0.55s ease,
+    filter 0.5s ease;
+  pointer-events: none;
+}
+
+.cta-hero-login:hover .cta-hero-login__base {
+  filter: brightness(1.12);
+}
+
+.cta-hero-login__glass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(
+    198deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 32%,
+    transparent 50%,
+    rgba(40, 100, 180, 0.12) 100%
+  );
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  pointer-events: none;
+}
+
+.cta-hero-login__shine-edge {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.28) inset,
+    0 -1px 0 0 rgba(0, 0, 0, 0.2) inset;
+  pointer-events: none;
+}
+
+.cta-hero-login__shimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.38;
+  transition: opacity 0.45s ease;
+}
+
+.cta-hero-login:hover .cta-hero-login__shimmer {
+  opacity: 0.62;
+}
+
+.cta-hero-login__shimmer::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -65%;
+  width: 48%;
+  height: 220%;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(200, 230, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.06) 60%,
+    transparent 100%
+  );
+  transform: rotate(20deg);
+  animation: cta-hero-shimmer-wipe 3.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-enter-anglr__shimmer::after,
+  .cta-hero-signup__shimmer::after,
+  .cta-hero-login__shimmer::after {
+    animation: none;
+  }
+
+  .cta-enter-anglr__bloom,
+  .cta-enter-anglr__base,
+  .cta-hero-signup__bloom,
+  .cta-hero-signup__base,
+  .cta-hero-login__bloom,
+  .cta-hero-login__base {
+    transition: none;
+  }
+
+  .cta-enter-anglr:hover .cta-enter-anglr__bloom,
+  .cta-hero-signup:hover .cta-hero-signup__bloom,
+  .cta-hero-login:hover .cta-hero-login__bloom {
+    transform: none;
+  }
 }

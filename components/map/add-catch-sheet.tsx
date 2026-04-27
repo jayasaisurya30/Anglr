@@ -88,6 +88,7 @@ export function AddCatchSheet({
         <CatchForm
           defaultValues={{
             species: "",
+            species_nickname: "",
             weight_lbs: null,
             caught_at: toDatetimeLocal(),
             lat: initialCoords.lat,

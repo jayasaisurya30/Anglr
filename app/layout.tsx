@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import "sonner/dist/styles.css";
 import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/common/providers";
+import { AnglrCursor } from "@/components/common/anglr-cursor";
 import { cn } from "@/lib/utils/cn";
 
 const sans = Inter({
@@ -55,16 +57,25 @@ export default function RootLayout({
         )}
       >
         <Providers>
+          <AnglrCursor />
           {children}
           <Toaster
             theme="dark"
             richColors
             position="bottom-right"
+            closeButton
+            duration={4800}
+            gap={12}
+            offset={{
+              bottom: "max(1.25rem, env(safe-area-inset-bottom))",
+              right: "max(1.25rem, env(safe-area-inset-right))",
+            }}
             toastOptions={{
-              style: {
-                background: "rgba(14,16,20,0.92)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                backdropFilter: "blur(20px)",
+              classNames: {
+                toast: "toast-anglr",
+                title: "toast-anglr__title",
+                description: "toast-anglr__description",
+                closeButton: "toast-anglr__close",
               },
             }}
           />

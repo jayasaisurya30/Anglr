@@ -1,6 +1,6 @@
 "use client";
 
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 const COLORS = [
   "#4DA3FF",
@@ -21,32 +21,25 @@ export function SpeciesPie({
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-6">
-      <div className="mb-5">
-        <h3 className="text-sm font-medium">Species breakdown</h3>
-        <p className="text-xs text-muted-foreground">
+    <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-6 md:p-8">
+      <div className="mb-6 md:mb-8">
+        <h3 className="text-base font-semibold tracking-tight">
+          Species breakdown
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           Across all logged catches
         </p>
       </div>
-      <div className="grid grid-cols-5 items-center gap-6">
-        <div className="col-span-3 h-60">
+      <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="h-64 min-h-[16rem] w-full sm:h-72 md:h-80 lg:col-span-8 lg:h-[22rem]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(14,16,20,0.95)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "12px",
-                  backdropFilter: "blur(16px)",
-                  fontSize: 12,
-                }}
-              />
               <Pie
                 data={data}
                 dataKey="value"
                 nameKey="name"
-                innerRadius={55}
-                outerRadius={95}
+                innerRadius="42%"
+                outerRadius="78%"
                 paddingAngle={2}
                 stroke="none"
               >
@@ -57,23 +50,28 @@ export function SpeciesPie({
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <ul className="col-span-2 space-y-2 text-sm">
+        <ul className="grid gap-3 sm:grid-cols-2 sm:gap-x-8 lg:col-span-4 lg:block lg:space-y-3 lg:self-center">
           {data.slice(0, 8).map((d, i) => (
-            <li key={d.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-2 min-w-0">
+            <li
+              key={d.name}
+              className="flex items-center justify-between gap-3 text-sm md:text-base"
+            >
+              <div className="flex min-w-0 items-center gap-3">
                 <span
-                  className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
+                  className="inline-block h-3 w-3 shrink-0 rounded-full"
                   style={{ background: COLORS[i % COLORS.length] }}
                 />
-                <span className="truncate">{d.name}</span>
+                <span className="truncate font-medium">{d.name}</span>
               </div>
-              <span className="text-muted-foreground">
+              <span className="shrink-0 tabular-nums text-muted-foreground">
                 {total > 0 ? Math.round((d.value / total) * 100) : 0}%
               </span>
             </li>
           ))}
           {data.length === 0 ? (
-            <li className="text-muted-foreground">No data yet</li>
+            <li className="text-muted-foreground sm:col-span-2 lg:col-span-1">
+              No data yet
+            </li>
           ) : null}
         </ul>
       </div>

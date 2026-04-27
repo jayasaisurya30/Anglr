@@ -9,6 +9,7 @@ import Map, {
 import mapboxgl from "mapbox-gl";
 import { patchMapStyle, MAP_STYLE, INITIAL_VIEW } from "@/lib/mapbox/style";
 import {
+  approxViewportBounds,
   buildClusterIndex,
   type CatchPoint,
   type BBox,
@@ -16,7 +17,6 @@ import {
 import { UserLocationMarker } from "./user-location-marker";
 import { CatchPin } from "./catch-pin";
 import { ClusterMarker } from "./cluster-marker";
-import { Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface MapCanvasProps {
@@ -48,7 +48,16 @@ export function MapCanvas({
   const userLocationRef = useRef(userLocation);
   userLocationRef.current = userLocation;
 
-  const [clusterView, setClusterView] = useState<ClusterView | null>(null);
+  const [clusterView, setClusterView] = useState<ClusterView>(() => {
+    const lng = initialCenter?.lng ?? INITIAL_VIEW.longitude;
+    const lat = initialCenter?.lat ?? INITIAL_VIEW.latitude;
+    const zoom = initialCenter?.zoom ?? INITIAL_VIEW.zoom;
+    // Fixed viewport size avoids SSR/client hydration mismatch; onLoad syncs real bounds.
+    return {
+      bounds: approxViewportBounds(lng, lat, zoom, 1024, 768),
+      zoom: Math.round(zoom),
+    };
+  });
 
   const didCenterOnUserRef = useRef(false);
 
@@ -83,10 +92,10 @@ export function MapCanvas({
     centerOnUserIfNeeded();
   }, [userLocation, centerOnUserIfNeeded]);
 
-  const clusters = useMemo(() => {
-    if (!clusterView) return [];
-    return cluster.getClusters(clusterView.bounds, clusterView.zoom);
-  }, [cluster, clusterView]);
+  const clusters = useMemo(
+    () => cluster.getClusters(clusterView.bounds, clusterView.zoom),
+    [cluster, clusterView],
+  );
 
   const handleClick = useCallback(
     (e: MapLayerMouseEvent) => {
@@ -99,8 +108,12 @@ export function MapCanvas({
 
   const handleLoad = useCallback(() => {
     const map = mapRef.current?.getMap();
-    if (map) patchMapStyle(map);
-    syncClusterView();
+    if (map) {
+      patchMapStyle(map);
+      syncClusterView();
+      queueMicrotask(() => syncClusterView());
+      map.once("idle", () => syncClusterView());
+    }
     centerOnUserIfNeeded();
   }, [syncClusterView, centerOnUserIfNeeded]);
 
@@ -121,8 +134,8 @@ export function MapCanvas({
   return (
     <div
       className={cn(
-        "relative h-full w-full overflow-hidden map-mc-cursor",
-        placementMode && "map-mc-cursor--placing",
+        "relative h-full w-full overflow-hidden",
+        placementMode && "map-canvas--placing",
         className
       )}
     >
@@ -183,6 +196,8 @@ export function MapCanvas({
               lng={lng}
               lat={lat}
               caughtAt={p.caught_at}
+              species={p.species}
+              weight_lbs={p.weight_lbs}
               onClick={() => onPinClick?.(p)}
             />
           );
@@ -194,10 +209,11 @@ export function MapCanvas({
       </Map>
 
       {placementMode ? (
-        <div className="pointer-events-none absolute inset-0 flex items-start justify-center pt-6">
-          <div className="glass rounded-full px-4 py-2 text-xs text-foreground shadow-panel flex items-center gap-2">
-            <Crosshair className="h-3.5 w-3.5 text-anglr-blue" />
-            Click anywhere on the map to drop a catch
+        <div className="pointer-events-none absolute left-1/2 top-5 z-10 -translate-x-1/2 px-4">
+          <div className="rounded-full border border-white/[0.09] bg-[rgba(4,6,10,0.52)] px-3 py-1 backdrop-blur-xl">
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/50">
+              Tap map to place
+            </p>
           </div>
         </div>
       ) : null}

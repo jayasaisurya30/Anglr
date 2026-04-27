@@ -5,14 +5,9 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatCard } from "@/components/stats/stat-card";
-import { MonthlyCatches } from "@/components/stats/monthly-catches";
 import { SpeciesPie } from "@/components/stats/species-pie";
 import { listMyCatches } from "@/lib/queries/catches";
-import {
-  monthlyCatches,
-  speciesBreakdown,
-  summarize,
-} from "@/lib/queries/stats";
+import { speciesBreakdown, summarize } from "@/lib/queries/stats";
 import { Fish, Scale, Trophy } from "lucide-react";
 
 const PersonalHeatmap = dynamic(
@@ -27,7 +22,6 @@ export function StatsView() {
   });
 
   const summary = useMemo(() => summarize(data ?? []), [data]);
-  const months = useMemo(() => monthlyCatches(data ?? []), [data]);
   const species = useMemo(() => speciesBreakdown(data ?? []), [data]);
 
   if (isLoading) {
@@ -38,10 +32,7 @@ export function StatsView() {
           <Skeleton className="h-28 rounded-3xl" />
           <Skeleton className="h-28 rounded-3xl" />
         </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <Skeleton className="h-80 rounded-3xl" />
-          <Skeleton className="h-80 rounded-3xl" />
-        </div>
+        <Skeleton className="h-[22rem] md:h-[26rem] rounded-3xl" />
         <Skeleton className="h-[440px] rounded-3xl" />
       </div>
     );
@@ -68,10 +59,7 @@ export function StatsView() {
           icon={<Scale className="h-4 w-4" />}
         />
       </div>
-      <div className="grid md:grid-cols-2 gap-4">
-        <MonthlyCatches data={months} />
-        <SpeciesPie data={species} />
-      </div>
+      <SpeciesPie data={species} />
       <PersonalHeatmap catches={data ?? []} />
     </div>
   );
