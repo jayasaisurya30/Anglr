@@ -143,9 +143,9 @@ export function CatchModal({
             }}
             showImages={false}
             busy={updateMut.isPending}
-            onSubmit={async (values) =>
-              updateMut.mutateAsync({ id: catchRow.id, patch: values })
-            }
+            onSubmit={async (values) => {
+              await updateMut.mutateAsync({ id: catchRow.id, patch: values });
+            }}
             onCancel={() => setEditing(false)}
           />
         ) : (

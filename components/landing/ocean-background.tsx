@@ -153,10 +153,6 @@ export function OceanBackground({
           preload="auto"
           disablePictureInPicture
           disableRemotePlayback
-          // @ts-expect-error — Safari hint
-          webkit-playsinline="true"
-          // @ts-expect-error — older iOS hint
-          x5-playsinline="true"
           style={{
             filter: "contrast(1.05) saturate(1.06)",
           }}

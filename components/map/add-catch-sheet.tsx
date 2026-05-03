@@ -99,9 +99,9 @@ export function AddCatchSheet({
           }}
           onCancel={() => onOpenChange(false)}
           busy={mutation.isPending}
-          onSubmit={(values, files) =>
-            mutation.mutateAsync({ values, files })
-          }
+          onSubmit={async (values, files) => {
+            await mutation.mutateAsync({ values, files });
+          }}
         />
       </DialogContent>
     </Dialog>

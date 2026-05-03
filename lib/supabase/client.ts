@@ -1,8 +1,18 @@
 "use client";
 
-import { processLock } from "@supabase/auth-js";
+import type { LockFunc } from "@supabase/auth-js";
 import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "./types";
+
+const processQueues = new Map<string, Promise<unknown>>();
+
+/** In-process auth lock (not exported from newer @supabase/auth-js). Serializes GoTrue work in one tab and avoids Web Locks + Strict Mode issues in dev. */
+const processLock: LockFunc = (name, _acquireTimeout, fn) => {
+  const prev = processQueues.get(name) ?? Promise.resolve();
+  const next = prev.then(fn);
+  processQueues.set(name, next.then(() => {}, () => {}));
+  return next;
+};
 
 /**
  * Browser auth uses the Web Locks API by default. In Next.js dev that interacts
