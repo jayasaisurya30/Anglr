@@ -1,26 +1,58 @@
 "use client";
 
-import { motion, type HTMLMotionProps } from "framer-motion";
+import { motion, useReducedMotion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 
 const defaultEase = [0.2, 0.8, 0.2, 1] as const;
+
+/** Premium ease — Vision-Pro–style deceleration */
+const smoothEase = [0.22, 1, 0.36, 1] as const;
 
 export function FadeIn({
   className,
   delay = 0,
   y = 12,
+  duration = 0.5,
+  ease = defaultEase,
+  scale,
   ...props
-}: HTMLMotionProps<"div"> & { delay?: number; y?: number }) {
+}: HTMLMotionProps<"div"> & {
+  delay?: number;
+  y?: number;
+  duration?: number;
+  ease?: readonly [number, number, number, number];
+  /** If set, animates from this scale to 1 (subtle “panel opens” feel). */
+  scale?: number;
+}) {
+  const reduceMotion = useReducedMotion();
+  const d = reduceMotion ? 0.01 : duration;
+  const del = reduceMotion ? 0 : delay;
+
+  const initial =
+    scale != null
+      ? { opacity: 0, y, scale }
+      : { opacity: 0, y };
+  const animate =
+    scale != null
+      ? { opacity: 1, y: 0, scale: 1 }
+      : { opacity: 1, y: 0 };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: defaultEase, delay }}
+      initial={initial}
+      animate={animate}
+      transition={{
+        duration: d,
+        ease: reduceMotion ? "linear" : ease,
+        delay: del,
+      }}
       className={cn(className)}
       {...props}
     />
   );
 }
+
+export { smoothEase };
 
 export function StaggerList({
   className,

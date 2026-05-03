@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-const handleRe = /^[a-z0-9_\.]{2,24}$/i;
 const usernameRe = /^[a-zA-Z0-9_\.]{2,24}$/;
 
 export const loginSchema = z.object({
@@ -18,10 +17,6 @@ export const signupSchema = z.object({
   username: z
     .string()
     .regex(usernameRe, "2–24 letters, numbers, '.' or '_'"),
-  handle: z
-    .string()
-    .regex(handleRe, "2–24 lowercase letters, numbers, '.' or '_'")
-    .transform((v) => v.toLowerCase()),
 });
 export type SignupInput = z.infer<typeof signupSchema>;
 

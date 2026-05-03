@@ -11,6 +11,7 @@ import { patchMapStyle, MAP_STYLE, INITIAL_VIEW } from "@/lib/mapbox/style";
 import {
   approxViewportBounds,
   buildClusterIndex,
+  expandBBox,
   type CatchPoint,
   type BBox,
 } from "@/lib/mapbox/cluster";
@@ -52,12 +53,15 @@ export function MapCanvas({
     const lng = initialCenter?.lng ?? INITIAL_VIEW.longitude;
     const lat = initialCenter?.lat ?? INITIAL_VIEW.latitude;
     const zoom = initialCenter?.zoom ?? INITIAL_VIEW.zoom;
+    const z = Math.floor(zoom);
     // Fixed viewport size avoids SSR/client hydration mismatch; onLoad syncs real bounds.
     return {
-      bounds: approxViewportBounds(lng, lat, zoom, 1024, 768),
-      zoom: Math.round(zoom),
+      bounds: approxViewportBounds(lng, lat, z, 1024, 768),
+      zoom: z,
     };
   });
+
+  const clusterSyncRafRef = useRef<number | null>(null);
 
   const didCenterOnUserRef = useRef(false);
 
@@ -68,11 +72,29 @@ export function MapCanvas({
     if (!map) return;
     const b = map.getBounds();
     if (!b) return;
+    const raw: BBox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()];
     setClusterView({
-      bounds: [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()],
-      zoom: Math.round(map.getZoom()),
+      bounds: expandBBox(raw, 0.12),
+      // Supercluster uses floor(zoom) internally — match so clusters don’t thrash during gestures.
+      zoom: Math.floor(map.getZoom()),
     });
   }, []);
+
+  const scheduleClusterSync = useCallback(() => {
+    if (clusterSyncRafRef.current !== null) return;
+    clusterSyncRafRef.current = requestAnimationFrame(() => {
+      clusterSyncRafRef.current = null;
+      syncClusterView();
+    });
+  }, [syncClusterView]);
+
+  useEffect(
+    () => () => {
+      if (clusterSyncRafRef.current !== null)
+        cancelAnimationFrame(clusterSyncRafRef.current);
+    },
+    [],
+  );
 
   const centerOnUserIfNeeded = useCallback(() => {
     if (didCenterOnUserRef.current || initialCenter) return;
@@ -154,6 +176,7 @@ export function MapCanvas({
         }}
         onClick={handleClick}
         onLoad={handleLoad}
+        onMove={scheduleClusterSync}
         onMoveEnd={syncClusterView}
         interactive={interactive}
         attributionControl={false}

@@ -1,7 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { PremiumGlassButton } from "@/components/common/premium-glass-cta";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils/cn";
 import {
   getFollowState,
   sendFollowRequest,
@@ -10,6 +12,7 @@ import {
 } from "@/lib/queries/follows";
 import { toast } from "sonner";
 import { Check, UserMinus, UserPlus, Clock } from "lucide-react";
+import type { ReactNode } from "react";
 
 export function FollowButton({
   userId,
@@ -56,8 +59,7 @@ export function FollowButton({
     mutual: "Friends",
   };
 
-  const icon: Partial<Record<FollowState, React.ReactNode>> = {
-    none: <UserPlus />,
+  const icon: Partial<Record<FollowState, ReactNode>> = {
     requested: <Clock />,
     following: <Check />,
     mutual: <Check />,
@@ -66,15 +68,25 @@ export function FollowButton({
   const disabled = isLoading || requestMut.isPending || unfollowMut.isPending;
 
   if (state === "none") {
+    const glassVariant = size === "sm" ? "row" : "hero";
+    const iconSz = size === "sm" ? "size-[0.95rem]" : "size-[1.05rem]";
     return (
-      <Button
-        size={size}
-        variant="primary"
+      <PremiumGlassButton
+        type="button"
+        variant={glassVariant}
         disabled={disabled}
         onClick={() => requestMut.mutate()}
       >
-        {icon.none} {label.none}
-      </Button>
+        <UserPlus
+          className={cn(
+            iconSz,
+            "shrink-0 opacity-90 transition-transform duration-500 ease-smooth-out motion-safe:group-hover:translate-x-0.5",
+          )}
+          strokeWidth={2.35}
+          aria-hidden
+        />
+        {label.none}
+      </PremiumGlassButton>
     );
   }
   if (state === "requested") {

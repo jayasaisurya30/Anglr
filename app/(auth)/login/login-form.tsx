@@ -13,12 +13,14 @@ import { loginSchema, type LoginInput } from "@/lib/validators/auth";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { toSupabaseError } from "@/lib/supabase/to-error";
 import { useAuthProfile } from "@/components/common/auth-profile-provider";
+import { useLaunchTransition } from "@/components/common/launch-transition";
 
 export function LoginForm() {
   const router = useRouter();
   const search = useSearchParams();
-  const next = search.get("next") ?? "/map";
+  const next = search.get("next") ?? "/catches";
   const { refreshUser } = useAuthProfile();
+  const launch = useLaunchTransition();
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -42,8 +44,11 @@ export function LoginForm() {
       if (error) throw toSupabaseError(error, "Could not log in");
       await refreshUser();
       toast.success("Welcome back");
-      router.replace(next);
       router.refresh();
+      launch(next, {
+        replace: true,
+        panelLine1: "Opening dashboard",
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not log in");
     } finally {

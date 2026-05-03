@@ -20,6 +20,7 @@ import {
   respondToRequest,
   searchUsers,
 } from "@/lib/queries/follows";
+import { PremiumGlassButton } from "@/components/common/premium-glass-cta";
 import { UserRow } from "@/components/friends/user-row";
 import { FollowButton } from "@/components/friends/follow-button";
 import { Button } from "@/components/ui/button";
@@ -140,16 +141,26 @@ export function FriendsView() {
                     key={r.id}
                     profile={r.from_profile}
                     action={
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="primary"
+                      <div className="flex shrink-0 items-center gap-2">
+                        <PremiumGlassButton
+                          type="button"
+                          variant="row"
+                          className="shrink-0"
+                          disabled={
+                            respondMut.isPending &&
+                            respondMut.variables?.id === r.id
+                          }
                           onClick={() =>
                             respondMut.mutate({ id: r.id, status: "accepted" })
                           }
                         >
-                          <Check /> Accept
-                        </Button>
+                          <Check
+                            className="size-[0.95rem] shrink-0 opacity-90 transition-transform duration-500 ease-smooth-out motion-safe:group-hover:translate-x-0.5"
+                            strokeWidth={2.35}
+                            aria-hidden
+                          />
+                          Accept
+                        </PremiumGlassButton>
                         <Button
                           size="sm"
                           variant="ghost"

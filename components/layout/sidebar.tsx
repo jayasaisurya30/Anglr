@@ -17,8 +17,8 @@ import { Logo } from "@/components/common/logo";
 import { motion } from "framer-motion";
 
 const NAV = [
-  { href: "/map", label: "Map", icon: MapIcon },
   { href: "/catches", label: "My Catches", icon: Fish },
+  { href: "/map", label: "Map", icon: MapIcon },
   { href: "/stats", label: "Stats", icon: BarChart3 },
   { href: "/friends", label: "Friends", icon: Users },
   { href: "/public/feed", label: "Feed", icon: Newspaper },
@@ -48,21 +48,37 @@ export function Sidebar() {
               href={item.href}
               prefetch
               className={cn(
-                "relative group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
-                active
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
+                "relative group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-300",
+                active ? "" : "hover:bg-white/[0.035]",
               )}
             >
               {active ? (
                 <motion.span
                   layoutId="sidebar-active"
-                  className="absolute inset-0 rounded-xl bg-white/[0.06] border border-white/10"
+                  className="absolute inset-0 rounded-xl border border-white/[0.12] bg-gradient-to-b from-white/[0.09] to-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
                   transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 />
               ) : null}
-              <item.icon className="relative z-10 h-4 w-4" />
-              <span className="relative z-10">{item.label}</span>
+              <item.icon
+                className={cn(
+                  "relative z-10 h-4 w-4 shrink-0 transition-[color,filter] duration-300",
+                  active
+                    ? "text-[#f2f5fa] drop-shadow-[0_0_10px_rgba(255,255,255,0.22)]"
+                    : "text-[#8b95a8] group-hover:text-[#d8dee9]",
+                )}
+                strokeWidth={1.65}
+              />
+              <span
+                className={cn(
+                  "relative z-10 bg-clip-text text-[13px] font-semibold tracking-wide text-transparent",
+                  "bg-[linear-gradient(180deg,#ffffff_0%,#e8edf6_42%,#9ca8ba_100%)]",
+                  active
+                    ? "opacity-100 drop-shadow-[0_1px_12px_rgba(255,255,255,0.12)]"
+                    : "opacity-[0.7] group-hover:opacity-[0.95]",
+                )}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}

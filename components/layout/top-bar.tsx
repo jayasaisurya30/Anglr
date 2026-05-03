@@ -7,17 +7,24 @@ import { UserMenu } from "./user-menu";
 import { OfflineBadge } from "@/components/common/offline-badge";
 import { Logo } from "@/components/common/logo";
 
+/** Pages with a prominent in-content title — omit duplicate bar heading next to logo. */
+const BAR_TITLE_HIDDEN_PREFIXES = [
+  "/catches",
+  "/stats",
+  "/friends",
+  "/settings",
+] as const;
+
 const TITLES: Record<string, string> = {
   "/map": "Map",
-  "/catches": "My Catches",
-  "/stats": "Stats",
-  "/friends": "Friends",
   "/profile": "Profile",
-  "/settings": "Settings",
 };
 
 export function TopBar() {
   const pathname = usePathname();
+  const hideBarTitle = BAR_TITLE_HIDDEN_PREFIXES.some((p) =>
+    pathname.startsWith(p),
+  );
   const title =
     Object.entries(TITLES).find(([path]) => pathname.startsWith(path))?.[1] ??
     "ANGLR";
@@ -32,9 +39,11 @@ export function TopBar() {
         >
           <Logo size={26} />
         </Link>
-        <h1 className="text-base font-medium tracking-tight truncate">
-          {title}
-        </h1>
+        {hideBarTitle ? null : (
+          <h1 className="text-base font-medium tracking-tight truncate">
+            {title}
+          </h1>
+        )}
         <OfflineBadge />
       </div>
       <div className="flex items-center gap-1.5">

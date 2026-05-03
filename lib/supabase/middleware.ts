@@ -58,7 +58,7 @@ export async function updateSession(request: NextRequest) {
 
   if (isAuthRoute && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/map";
+    url.pathname = "/catches";
     url.search = "";
     return NextResponse.redirect(url);
   }

@@ -10,13 +10,14 @@ import { listMyCatches } from "@/lib/queries/catches";
 import { CatchModal } from "@/components/catches/catch-modal";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+  PremiumGlassCtaLayers,
+  premiumGlassButtonClassName,
+} from "@/components/common/premium-glass-cta";
 import type { CatchWithImages } from "@/lib/supabase/types";
 import type { CatchPoint } from "@/lib/mapbox/cluster";
 
 type Mode = "idle" | "placing";
-
-const placeOnMapCtaMotion =
-  "outline-none ring-offset-2 ring-offset-[#020611] transition-[transform,box-shadow,border-color,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:hover:scale-[1.04] motion-safe:hover:-translate-y-px motion-safe:active:scale-[0.985] motion-safe:active:translate-y-0 focus-visible:ring-2 focus-visible:ring-anglr-blue/70";
 
 export function MapView() {
   const [mode, setMode] = useState<Mode>("idle");
@@ -58,17 +59,18 @@ export function MapView() {
   }
 
   return (
-    <>
+    <div className="relative flex h-full min-h-0 min-w-0 w-full flex-1 flex-col">
       <MapCanvas
         points={points}
         userLocation={geo ? { lng: geo.lng, lat: geo.lat } : null}
         placementMode={mode === "placing"}
         onPlacement={handlePlacement}
         onPinClick={handlePinClick}
+        className="min-h-0 flex-1"
       />
 
       {/* Floating add-catch controls */}
-      <div className="pointer-events-none absolute left-1/2 bottom-8 -translate-x-1/2 flex items-center gap-2 z-20">
+      <div className="pointer-events-none absolute left-1/2 bottom-8 z-20 flex -translate-x-1/2 items-center gap-2">
         <AnimatePresence mode="popLayout">
           {mode === "placing" ? (
             <motion.div
@@ -97,16 +99,12 @@ export function MapView() {
               <button
                 type="button"
                 onClick={() => setMode("placing")}
-                className={`cta-hero-login group relative inline-flex h-[3.25rem] items-center justify-center gap-2.5 overflow-hidden rounded-full px-8 text-[0.9375rem] font-semibold tracking-[0.04em] text-[#e8f2fc] ${placeOnMapCtaMotion}`}
+                className={premiumGlassButtonClassName()}
               >
-                <span className="cta-hero-login__bloom" aria-hidden />
-                <span className="cta-hero-login__base" aria-hidden />
-                <span className="cta-hero-login__glass" aria-hidden />
-                <span className="cta-hero-login__shine-edge" aria-hidden />
-                <span className="cta-hero-login__shimmer" aria-hidden />
+                <PremiumGlassCtaLayers />
                 <span className="relative z-10 inline-flex items-center gap-2.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">
                   <Plus
-                    className="size-[1.05rem] shrink-0 opacity-90 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:group-hover:translate-x-0.5"
+                    className="size-[1.05rem] shrink-0 opacity-90 transition-transform duration-500 ease-smooth-out motion-safe:group-hover:translate-x-0.5"
                     strokeWidth={2.35}
                     aria-hidden
                   />
@@ -129,6 +127,6 @@ export function MapView() {
         onOpenChange={(o) => !o && setSelected(null)}
         catchRow={selected}
       />
-    </>
+    </div>
   );
 }

@@ -44,7 +44,7 @@ export function Logo({
         <circle cx="20.5" cy="13" r="1" fill="#0b0d11" />
       </svg>
       {showWordmark ? (
-        <span className="font-display text-[15px] font-semibold tracking-[0.18em] uppercase">
+        <span className="logo-wordmark font-display text-[15px] font-semibold tracking-[0.18em] uppercase">
           ANGLR
         </span>
       ) : null}

@@ -30,8 +30,12 @@ function targetIsInteractive(el: Element | null): boolean {
   );
 }
 
+/** Concave 4-point sparkle frame (outer − inner), viewBox 0 0 64 64. N/S tips extended. */
+const CURSOR_SPARKLE_D =
+  "M 32 0.1 C 33.5 26.5 50.5 31.2 62.5 32 C 50.5 32.8 33.5 37.5 32 63.9 C 30.5 37.5 13.5 32.8 1.5 32 C 13.5 31.2 30.5 26.5 32 0.1 Z M 32 17 C 33 29.6 43.5 31.6 46 32 C 43.5 32.4 33 35.2 32 47 C 31 35.2 20.5 32.4 18 32 C 20.5 31.6 31 29.6 32 17 Z";
+
 /**
- * Claude-style cursor: snappy inner dot + lagging outer ring, hover expand/glow,
+ * Custom cursor: white inner dot + lagging outer sparkle frame, hover expand/glow,
  * click pulse. Desktop only. Sets `data-anglr-cursor` on `<html>` to hide the
  * system cursor app-wide.
  */
@@ -119,21 +123,22 @@ export function AnglrCursor() {
     const onDown = () => {
       const dot = innerEl.querySelector(".landing-cursor-dot");
       const ring = outerEl.querySelector(".landing-cursor-ring");
-      if (!dot || !ring) return;
+      const sparkle = ring?.querySelector(".landing-cursor-sparkle-svg");
+      if (!dot || !ring || !sparkle) return;
 
       dot.classList.remove("landing-cursor-dot--pulse");
-      ring.classList.remove("landing-cursor-ring--pulse");
+      sparkle.classList.remove("landing-cursor-sparkle-svg--pulse");
       void (dot as HTMLElement).offsetWidth;
 
       if (!reduceMotion) {
         dot.classList.add("landing-cursor-dot--pulse");
-        ring.classList.add("landing-cursor-ring--pulse");
+        sparkle.classList.add("landing-cursor-sparkle-svg--pulse");
       }
 
       if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
       pulseTimerRef.current = setTimeout(() => {
         dot.classList.remove("landing-cursor-dot--pulse");
-        ring.classList.remove("landing-cursor-ring--pulse");
+        sparkle.classList.remove("landing-cursor-sparkle-svg--pulse");
         pulseTimerRef.current = null;
       }, 480);
     };
@@ -173,7 +178,21 @@ export function AnglrCursor() {
               "landing-cursor-ring",
               hovering && "landing-cursor-ring--hover",
             )}
-          />
+          >
+            <svg
+              className="landing-cursor-sparkle-svg"
+              viewBox="0 0 64 64"
+              width="64"
+              height="64"
+              aria-hidden
+            >
+              <path
+                className="landing-cursor-sparkle-path"
+                d={CURSOR_SPARKLE_D}
+                fillRule="evenodd"
+              />
+            </svg>
+          </div>
         </div>
       </div>
       <div

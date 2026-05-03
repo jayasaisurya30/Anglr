@@ -67,6 +67,10 @@ const config: Config = {
         md: "calc(var(--radius) - 4px)",
         sm: "calc(var(--radius) - 8px)",
       },
+      transitionTimingFunction: {
+        /** Premium CTA / hero motion — named curve avoids ambiguous `ease-[cubic-bezier(...)]`. */
+        "smooth-out": "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
       boxShadow: {
         glow: "0 0 0 1px rgba(77,163,255,0.25), 0 8px 40px -8px rgba(77,163,255,0.35)",
         panel: "0 1px 0 0 rgba(255,255,255,0.04) inset, 0 24px 80px -24px rgba(0,0,0,0.8)",

@@ -47,18 +47,19 @@ export function CatchPin({
           <button
             type="button"
             aria-label={`${title}, ${fmtDate(caughtAt, "MMM d, yyyy")}`}
-            className="relative h-full w-full rounded-full border border-white/[0.24] transition-[transform,filter] duration-200 motion-safe:group-hover:scale-[1.14] motion-safe:group-hover:brightness-[1.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-anglr-blue/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05070a]"
+            className="relative h-full w-full rounded-full border border-white/[0.45] transition-[transform,filter] duration-200 motion-safe:group-hover:scale-[1.14] motion-safe:group-hover:brightness-[1.05] focus:outline-none focus-visible:ring-2 focus-visible:ring-anglr-blue/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05070a]"
             style={{
               background: `
-                radial-gradient(circle at 30% 26%, rgba(255,255,255,0.58) 0%, rgba(255,255,255,0.1) 17%, transparent 41%),
-                radial-gradient(circle at 74% 76%, rgba(0,0,0,0.72) 0%, transparent 50%),
-                linear-gradient(148deg, #3d4450 0%, #101216 46%, #282e38 100%)
+                radial-gradient(circle at 28% 24%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.45) 18%, transparent 46%),
+                radial-gradient(circle at 76% 80%, rgba(120,165,212,0.22) 0%, transparent 48%),
+                linear-gradient(150deg, #ffffff 0%, #eef4fc 38%, #d8e8f8 72%, #fbfdff 100%)
               `,
               boxShadow: `
-                0 0 14px -2px rgba(127, 196, 255, 0.42),
-                0 0 6px -1px rgba(220, 235, 255, 0.14),
-                inset 0 2px 3px rgba(255, 255, 255, 0.36),
-                inset 0 -3px 5px rgba(0, 0, 0, 0.84)
+                0 0 16px -1px rgba(127, 196, 255, 0.55),
+                0 0 8px -1px rgba(255, 255, 255, 0.65),
+                inset 0 2px 5px rgba(255, 255, 255, 0.95),
+                inset 0 -4px 6px rgba(90, 120, 160, 0.18),
+                inset 0 -1px 0 rgba(127, 196, 255, 0.25)
               `,
             }}
             onClick={(e) => {

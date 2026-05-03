@@ -34,7 +34,7 @@ export function ResetForm() {
       });
       if (error) throw toSupabaseError(error, "Could not update password");
       toast.success("Password updated");
-      router.replace("/map");
+      router.replace("/catches");
       router.refresh();
     } catch (e) {
       toast.error(

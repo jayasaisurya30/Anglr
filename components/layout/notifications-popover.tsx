@@ -1,6 +1,9 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Bell, Check, Heart, MessageSquare, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { BobberNotificationIcon } from "@/components/layout/bobber-notification-icon";
 import {
   Popover,
   PopoverContent,
@@ -21,6 +24,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { profilePrimaryName } from "@/lib/utils/profile-display";
 
 export function NotificationsPopover() {
+  const [open, setOpen] = useState(false);
   const { user } = useUser();
   const { data, unread } = useRealtimeNotifications(user?.id);
   const qc = useQueryClient();
@@ -37,22 +41,29 @@ export function NotificationsPopover() {
   }
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
+        <motion.button
+          type="button"
           aria-label="Notifications"
-          className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/[0.05] transition"
+          className="group/bobber relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-anglr-blue/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: "spring", stiffness: 420, damping: 26 }}
         >
-          <Bell className="h-[18px] w-[18px] text-foreground" />
+          <BobberNotificationIcon hasUnread={unread > 0} menuOpen={open} />
           {unread > 0 ? (
-            <span className="absolute top-1.5 right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-anglr-blue px-1 text-[10px] font-semibold text-white">
+            <span className="absolute top-1 right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-anglr-blue px-1 text-[10px] font-semibold text-white shadow-[0_0_12px_rgba(77,163,255,0.45)] ring-2 ring-background">
               {unread > 9 ? "9+" : unread}
             </span>
           ) : null}
-        </button>
+        </motion.button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-96 p-0">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+      <PopoverContent
+        align="end"
+        className="w-96 overflow-hidden rounded-3xl border border-white/[0.08] bg-[hsla(222,14%,7%,0.78)] p-0 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.72),0_0_0_1px_rgba(255,255,255,0.04)_inset] backdrop-blur-2xl duration-200"
+      >
+        <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3">
           <div className="text-sm font-medium">Notifications</div>
           {unread > 0 ? (
             <Button

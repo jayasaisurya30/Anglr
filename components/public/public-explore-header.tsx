@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/common/logo";
 
 /**
- * Header for /public/feed and /public/map so signed-in users can return to the app shell (/map).
+ * Header for /public/feed and /public/map so signed-in users can return to the app shell (/catches).
  */
 export function PublicExploreHeader() {
   return (
@@ -18,7 +18,7 @@ export function PublicExploreHeader() {
           className="shrink-0 -ml-2 gap-1.5 text-muted-foreground hover:text-foreground"
           asChild
         >
-          <Link href="/map">
+          <Link href="/catches">
             <ArrowLeft className="h-4 w-4" />
             <span>Dashboard</span>
           </Link>
