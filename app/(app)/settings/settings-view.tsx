@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { PremiumGlassButton } from "@/components/common/premium-glass-cta";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +18,7 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import type { Settings } from "@/lib/supabase/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LogOut, AlertCircle, Loader2 } from "lucide-react";
+import { LogOut, AlertCircle, Loader2, Check } from "lucide-react";
 
 export function SettingsView() {
   const { user, loading, error: userError, refreshUser } = useUser();
@@ -244,14 +245,27 @@ export function SettingsView() {
                 />
               </div>
               <div>
-                <Button
-                  variant="primary"
-                  size="sm"
+                <PremiumGlassButton
+                  type="button"
+                  variant="row"
                   disabled={updateProfile.isPending}
                   onClick={() => updateProfile.mutate()}
                 >
+                  {updateProfile.isPending ? (
+                    <Loader2
+                      className="size-4 shrink-0 animate-spin opacity-90"
+                      strokeWidth={2.35}
+                      aria-hidden
+                    />
+                  ) : (
+                    <Check
+                      className="size-[0.95rem] shrink-0 opacity-90 transition-transform duration-500 ease-smooth-out motion-safe:group-hover:scale-105"
+                      strokeWidth={2.35}
+                      aria-hidden
+                    />
+                  )}
                   Save profile
-                </Button>
+                </PremiumGlassButton>
               </div>
             </div>
           </Section>

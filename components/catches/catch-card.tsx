@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Fish } from "lucide-react";
-import { publicImageUrl } from "@/lib/queries/catches";
+import { CatchStorageImage } from "@/components/catches/catch-storage-image";
 import { fmtDate } from "@/lib/utils/dates";
 import { Badge } from "@/components/ui/badge";
 import type { CatchWithImages } from "@/lib/supabase/types";
@@ -32,14 +32,14 @@ export function CatchCard({
     >
       <div className="aspect-[4/5] w-full bg-anglr-ink relative overflow-hidden">
         {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={publicImageUrl(cover.storage_path)}
+          <CatchStorageImage
+            storagePath={cover.storage_path}
+            fill
             alt={catchSpeciesBadgeLabel(
               catchRow.species,
               catchRow.species_nickname
             )}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            imageClassName="transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center">

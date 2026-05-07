@@ -137,9 +137,58 @@ export async function deleteCatch(id: string) {
 }
 
 export function publicImageUrl(storagePath: string): string {
+  const resolved = normalizeCatchImageStoragePath(storagePath);
+  if (!resolved) return "";
+  if (/^https?:\/\//i.test(resolved)) return resolved;
   const supabase = createSupabaseBrowserClient();
-  const { data } = supabase.storage
-    .from("catch-images")
-    .getPublicUrl(storagePath);
+  const { data } = supabase.storage.from("catch-images").getPublicUrl(resolved);
   return data.publicUrl;
+}
+
+const signedUrlCache = new Map<string, { url: string; exp: number }>();
+
+/** Normalize DB value: trim, strip leading slashes, strip duplicate bucket prefix. */
+export function normalizeCatchImageStoragePath(
+  storagePath: string | null | undefined
+): string | null {
+  const raw = storagePath?.trim();
+  if (!raw) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  let clean = raw.replace(/^\/+/, "");
+  if (clean.startsWith("catch-images/")) {
+    clean = clean.slice("catch-images/".length);
+  }
+  return clean || null;
+}
+
+/**
+ * Browser-resolvable URL for catch photos. Prefer signed URLs so images load when
+ * the bucket is private or public URLs fail; falls back to getPublicUrl.
+ */
+export async function resolveCatchImageUrl(
+  storagePath: string | null | undefined
+): Promise<string | null> {
+  const clean = normalizeCatchImageStoragePath(storagePath);
+  if (!clean) return null;
+  if (/^https?:\/\//i.test(clean)) return clean;
+
+  const now = Date.now();
+  const cached = signedUrlCache.get(clean);
+  if (cached && cached.exp > now) return cached.url;
+
+  const supabase = createSupabaseBrowserClient();
+  const { data, error } = await supabase.storage
+    .from("catch-images")
+    .createSignedUrl(clean, 60 * 60 * 12);
+
+  if (!error && data?.signedUrl) {
+    signedUrlCache.set(clean, {
+      url: data.signedUrl,
+      exp: now + (60 * 60 * 12 - 120) * 1000,
+    });
+    return data.signedUrl;
+  }
+
+  const { data: pub } = supabase.storage.from("catch-images").getPublicUrl(clean);
+  return pub.publicUrl || null;
 }

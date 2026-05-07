@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import Map, {
   type MapRef,
   type MapLayerMouseEvent,
@@ -8,16 +8,9 @@ import Map, {
 } from "react-map-gl";
 import mapboxgl from "mapbox-gl";
 import { patchMapStyle, MAP_STYLE, INITIAL_VIEW } from "@/lib/mapbox/style";
-import {
-  approxViewportBounds,
-  buildClusterIndex,
-  expandBBox,
-  type CatchPoint,
-  type BBox,
-} from "@/lib/mapbox/cluster";
+import type { CatchPoint } from "@/lib/mapbox/cluster";
 import { UserLocationMarker } from "./user-location-marker";
 import { CatchPin } from "./catch-pin";
-import { ClusterMarker } from "./cluster-marker";
 import { cn } from "@/lib/utils/cn";
 
 export interface MapCanvasProps {
@@ -33,8 +26,6 @@ export interface MapCanvasProps {
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
-type ClusterView = { bounds: BBox; zoom: number };
-
 export function MapCanvas({
   points,
   userLocation,
@@ -49,52 +40,7 @@ export function MapCanvas({
   const userLocationRef = useRef(userLocation);
   userLocationRef.current = userLocation;
 
-  const [clusterView, setClusterView] = useState<ClusterView>(() => {
-    const lng = initialCenter?.lng ?? INITIAL_VIEW.longitude;
-    const lat = initialCenter?.lat ?? INITIAL_VIEW.latitude;
-    const zoom = initialCenter?.zoom ?? INITIAL_VIEW.zoom;
-    const z = Math.floor(zoom);
-    // Fixed viewport size avoids SSR/client hydration mismatch; onLoad syncs real bounds.
-    return {
-      bounds: approxViewportBounds(lng, lat, z, 1024, 768),
-      zoom: z,
-    };
-  });
-
-  const clusterSyncRafRef = useRef<number | null>(null);
-
   const didCenterOnUserRef = useRef(false);
-
-  const cluster = useMemo(() => buildClusterIndex(points), [points]);
-
-  const syncClusterView = useCallback(() => {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    const b = map.getBounds();
-    if (!b) return;
-    const raw: BBox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()];
-    setClusterView({
-      bounds: expandBBox(raw, 0.12),
-      // Supercluster uses floor(zoom) internally — match so clusters don’t thrash during gestures.
-      zoom: Math.floor(map.getZoom()),
-    });
-  }, []);
-
-  const scheduleClusterSync = useCallback(() => {
-    if (clusterSyncRafRef.current !== null) return;
-    clusterSyncRafRef.current = requestAnimationFrame(() => {
-      clusterSyncRafRef.current = null;
-      syncClusterView();
-    });
-  }, [syncClusterView]);
-
-  useEffect(
-    () => () => {
-      if (clusterSyncRafRef.current !== null)
-        cancelAnimationFrame(clusterSyncRafRef.current);
-    },
-    [],
-  );
 
   const centerOnUserIfNeeded = useCallback(() => {
     if (didCenterOnUserRef.current || initialCenter) return;
@@ -114,11 +60,6 @@ export function MapCanvas({
     centerOnUserIfNeeded();
   }, [userLocation, centerOnUserIfNeeded]);
 
-  const clusters = useMemo(
-    () => cluster.getClusters(clusterView.bounds, clusterView.zoom),
-    [cluster, clusterView],
-  );
-
   const handleClick = useCallback(
     (e: MapLayerMouseEvent) => {
       if (!placementMode) return;
@@ -130,14 +71,9 @@ export function MapCanvas({
 
   const handleLoad = useCallback(() => {
     const map = mapRef.current?.getMap();
-    if (map) {
-      patchMapStyle(map);
-      syncClusterView();
-      queueMicrotask(() => syncClusterView());
-      map.once("idle", () => syncClusterView());
-    }
+    if (map) patchMapStyle(map);
     centerOnUserIfNeeded();
-  }, [syncClusterView, centerOnUserIfNeeded]);
+  }, [centerOnUserIfNeeded]);
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -176,55 +112,23 @@ export function MapCanvas({
         }}
         onClick={handleClick}
         onLoad={handleLoad}
-        onMove={scheduleClusterSync}
-        onMoveEnd={syncClusterView}
         interactive={interactive}
         attributionControl={false}
         style={{ width: "100%", height: "100%" }}
       >
         <NavigationControl position="bottom-right" showCompass={false} />
 
-        {clusters.map((c) => {
-          const [lng, lat] = c.geometry.coordinates;
-          const isCluster = (c.properties as { cluster?: boolean }).cluster;
-          if (isCluster) {
-            const pointCount = (c.properties as { point_count: number })
-              .point_count;
-            const clusterId = (c.properties as { cluster_id: number })
-              .cluster_id;
-            return (
-              <ClusterMarker
-                key={`cluster-${clusterId}`}
-                lng={lng}
-                lat={lat}
-                count={pointCount}
-                onClick={() => {
-                  const expansionZoom = Math.min(
-                    cluster.getClusterExpansionZoom(clusterId),
-                    16
-                  );
-                  mapRef.current?.easeTo({
-                    center: [lng, lat],
-                    zoom: expansionZoom,
-                    duration: 600,
-                  });
-                }}
-              />
-            );
-          }
-          const p = c.properties as unknown as CatchPoint;
-          return (
-            <CatchPin
-              key={p.id}
-              lng={lng}
-              lat={lat}
-              caughtAt={p.caught_at}
-              species={p.species}
-              weight_lbs={p.weight_lbs}
-              onClick={() => onPinClick?.(p)}
-            />
-          );
-        })}
+        {points.map((p) => (
+          <CatchPin
+            key={p.id}
+            lng={p.lng}
+            lat={p.lat}
+            caughtAt={p.caught_at}
+            species={p.species}
+            weight_lbs={p.weight_lbs}
+            onClick={() => onPinClick?.(p)}
+          />
+        ))}
 
         {userLocation ? (
           <UserLocationMarker lng={userLocation.lng} lat={userLocation.lat} />

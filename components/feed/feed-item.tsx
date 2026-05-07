@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { publicImageUrl } from "@/lib/queries/catches";
+import { CatchStorageImage } from "@/components/catches/catch-storage-image";
 import { fmtDate, fmtRelative } from "@/lib/utils/dates";
 import { LikeButton } from "./like-button";
 import { CommentThread } from "./comment-thread";
@@ -66,13 +66,12 @@ export function FeedItem({ catchRow }: { catchRow: CatchWithAuthor }) {
           }
         >
           {imgs.slice(0, 3).map((img) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <div
               key={img.id}
-              src={publicImageUrl(img.storage_path)}
-              alt=""
-              className="aspect-[4/3] w-full object-cover bg-anglr-ink"
-            />
+              className="relative aspect-[4/3] w-full min-h-0 bg-anglr-ink"
+            >
+              <CatchStorageImage storagePath={img.storage_path} alt="" fill />
+            </div>
           ))}
         </div>
       ) : null}

@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CatchForm } from "./catch-form";
-import { publicImageUrl, deleteCatch, updateCatch } from "@/lib/queries/catches";
+import { deleteCatch, updateCatch } from "@/lib/queries/catches";
+import { CatchStorageImage } from "@/components/catches/catch-storage-image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { fmtDate } from "@/lib/utils/dates";
@@ -153,13 +154,16 @@ export function CatchModal({
             {imgs.length > 0 ? (
               <div className="grid grid-cols-3 gap-2">
                 {imgs.map((img) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <div
                     key={img.id}
-                    src={publicImageUrl(img.storage_path)}
-                    alt=""
-                    className="aspect-square w-full rounded-xl object-cover border border-white/10"
-                  />
+                    className="relative aspect-square w-full overflow-hidden rounded-xl border border-white/10"
+                  >
+                    <CatchStorageImage
+                      storagePath={img.storage_path}
+                      alt=""
+                      fill
+                    />
+                  </div>
                 ))}
               </div>
             ) : null}
