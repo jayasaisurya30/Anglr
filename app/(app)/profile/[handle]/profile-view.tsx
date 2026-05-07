@@ -52,9 +52,11 @@ export function ProfileView({
 
   const biggest = useMemo(() => {
     let max = 0;
-    (catches.data ?? []).forEach((c) => {
-      if ((c.weight_lbs ?? 0) > max) max = c.weight_lbs ?? 0;
-    });
+    for (const c of catches.data ?? []) {
+      const w = Number(c.weight_lbs);
+      if (!Number.isFinite(w) || w <= max) continue;
+      max = w;
+    }
     return max;
   }, [catches.data]);
 

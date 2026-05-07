@@ -180,7 +180,14 @@ export function CatchModal({
               <Field label="Bait / lure" value={catchRow.bait ?? "—"} />
               <Field
                 label="Location"
-                value={`${catchRow.lat.toFixed(5)}, ${catchRow.lng.toFixed(5)}`}
+                value={(() => {
+                  const lat = Number(catchRow.lat);
+                  const lng = Number(catchRow.lng);
+                  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                    return "—";
+                  }
+                  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                })()}
               />
             </div>
             {catchRow.notes ? (

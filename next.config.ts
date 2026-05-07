@@ -33,7 +33,9 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    optimizePackageImports: ["lucide-react", "framer-motion", "recharts"],
+    // framer-motion omitted: optimizePackageImports can emit missing server vendor chunks
+    // (e.g. Cannot find module './vendor-chunks/framer-motion.js') for RSC pages.
+    optimizePackageImports: ["lucide-react", "recharts"],
   },
 };
 

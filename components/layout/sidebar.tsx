@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { Logo } from "@/components/common/logo";
 import { motion } from "framer-motion";
+import { useAuthProfile } from "@/components/common/auth-profile-provider";
 
 const NAV = [
   { href: "/catches", label: "My Catches", icon: Fish },
@@ -29,6 +30,16 @@ const NAV = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, loading: authLoading } = useAuthProfile();
+
+  const profileHref =
+    authLoading || !user
+      ? "/profile"
+      : (() => {
+          const h = user.profile?.handle?.trim();
+          if (!h) return "/settings?setup=profile";
+          return `/profile/${encodeURIComponent(h)}`;
+        })();
 
   return (
     <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-r border-white/5 bg-anglr-ink/60 backdrop-blur-2xl">
@@ -39,13 +50,16 @@ export function Sidebar() {
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1">
         {NAV.map((item) => {
+          const href = item.href === "/profile" ? profileHref : item.href;
           const active =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
+            item.href === "/profile"
+              ? pathname.startsWith("/profile")
+              : pathname === href ||
+                (item.href !== "/" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={href}
               prefetch
               className={cn(
                 "relative group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-300",

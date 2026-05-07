@@ -32,6 +32,11 @@ export function UserMenu() {
   const display = profilePrimaryName(user.profile ?? undefined);
   const menuAvatarSrc = resolveProfileAvatarSrc(user.profile?.avatar_url);
   const initials = display.slice(0, 2).toUpperCase();
+  const profileHref = (() => {
+    const h = user.profile?.handle?.trim();
+    if (!h) return "/settings?setup=profile";
+    return `/profile/${encodeURIComponent(h)}`;
+  })();
 
   return (
     <DropdownMenu>
@@ -58,7 +63,7 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/profile">
+          <Link href={profileHref}>
             <UserIcon className="h-4 w-4" /> Profile
           </Link>
         </DropdownMenuItem>

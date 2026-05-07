@@ -10,9 +10,10 @@ export function summarize(catches: CatchRow[]): StatsSummary {
   let biggest = 0;
   let totalWeight = 0;
   for (const c of catches) {
-    const w = c.weight_lbs ?? 0;
-    totalWeight += w;
-    if (w > biggest) biggest = w;
+    const w = Number(c.weight_lbs);
+    const weight = Number.isFinite(w) ? w : 0;
+    totalWeight += weight;
+    if (weight > biggest) biggest = weight;
   }
   return {
     total: catches.length,
