@@ -14,6 +14,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { toSupabaseError } from "@/lib/supabase/to-error";
 import { useLaunchTransition } from "@/components/common/launch-transition";
 import { useAuthProfile } from "@/components/common/auth-profile-provider";
+import { PasswordRequirements } from "@/components/auth/password-requirements";
 
 export function SignupForm() {
   const router = useRouter();
@@ -24,11 +25,19 @@ export function SignupForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { email: "", password: "", username: "" },
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      username: "",
+    },
   });
+
+  const passwordValue = watch("password");
 
   async function onSubmit(values: SignupInput) {
     setSubmitting(true);
@@ -130,11 +139,27 @@ export function SignupForm() {
           id="password"
           type="password"
           autoComplete="new-password"
-          placeholder="At least 8 characters"
+          placeholder="Create a password"
           {...register("password")}
         />
+        <PasswordRequirements password={passwordValue ?? ""} />
         {errors.password ? (
           <p className="text-xs text-destructive">{errors.password.message}</p>
+        ) : null}
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="confirmPassword">Confirm password</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          placeholder="Re-enter your password"
+          {...register("confirmPassword")}
+        />
+        {errors.confirmPassword ? (
+          <p className="text-xs text-destructive">
+            {errors.confirmPassword.message}
+          </p>
         ) : null}
       </div>
 

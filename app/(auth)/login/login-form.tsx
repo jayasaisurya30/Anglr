@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
+import { PremiumGlassButton } from "@/components/common/premium-glass-cta";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema, type LoginInput } from "@/lib/validators/auth";
@@ -92,15 +93,19 @@ export function LoginForm() {
           <p className="text-xs text-destructive">{errors.password.message}</p>
         ) : null}
       </div>
-      <Button
+      <PremiumGlassButton
         type="submit"
-        variant="primary"
-        size="lg"
-        className="w-full"
         disabled={submitting}
+        aria-busy={submitting}
+        className="w-full"
       >
+        <LogIn
+          className="size-[1.05rem] shrink-0 opacity-90 transition-transform duration-500 ease-smooth-out motion-safe:group-hover:translate-x-0.5"
+          strokeWidth={2.35}
+          aria-hidden
+        />
         {submitting ? "Logging in..." : "Log in"}
-      </Button>
+      </PremiumGlassButton>
     </form>
   );
 }
